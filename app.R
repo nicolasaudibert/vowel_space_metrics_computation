@@ -61,8 +61,8 @@ getLDApredictionsWithProbabilities <- function(itemIdVect, classVect, predictors
     pivot_longer(cols = c(-itemId, -classCol, -ldaPredictedCategory), names_to = "posteriorClassLabel", values_to = "posteriorProbability")
   lda.model.posterior.ref <- lda.model.posterior %>% 
     filter(posteriorClassLabel==classCol) %>% 
-    dplyr::select(itemId, posteriorProbability) %>% 
-    rename(ContrastLoss = posteriorProbability)
+    mutate(ContrastLoss = 1 - posteriorProbability) %>% 
+    dplyr::select(itemId, ContrastLoss)
   lda.model.posterior.predicted <- lda.model.posterior %>% 
     filter(posteriorClassLabel==ldaPredictedCategory) %>% 
     dplyr::select(itemId, posteriorProbability) %>% 
@@ -87,8 +87,8 @@ ui <- fluidPage(
   
   # User-defined parameters
   fluidRow(
-    column(width=3, selectInput("group_columns", "Group column:", choices = NULL, multiple = TRUE)),
-    column(width=3, selectInput("vowel_column", "Vowel column:", choices = NULL))
+    column(width=3, selectInput("group_columns", "Grouping variable(s):", choices = NULL, multiple = TRUE)),
+    column(width=3, selectInput("vowel_column", "Vowel category variable:", choices = NULL))
   ),
   fluidRow(
     column(
@@ -155,14 +155,14 @@ server <- function(input, output, session) {
     updateSelectInput(
       session,
       "group_columns",
-      "Group column:",
+      "Grouping variable(s):",
       choices = names(inputDataset()),
       selected = ""
     )
     updateSelectInput(
       session,
       "vowel_column",
-      "Vowel column:",
+      "Vowel category variable:",
       choices = names(inputDataset()),
       selected = ""
     )

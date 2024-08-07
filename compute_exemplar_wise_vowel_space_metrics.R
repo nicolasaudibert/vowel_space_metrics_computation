@@ -65,8 +65,8 @@ getLDApredictionsWithProbabilities <- function(itemIdVect, classVect, predictors
     pivot_longer(cols = c(-itemId, -classCol, -ldaPredictedCategory), names_to = "posteriorClassLabel", values_to = "posteriorProbability")
   lda.model.posterior.ref <- lda.model.posterior %>% 
     filter(posteriorClassLabel==classCol) %>% 
-    dplyr::select(itemId, posteriorProbability) %>% 
-    rename(ContrastLoss = posteriorProbability)
+    mutate(ContrastLoss = 1 - posteriorProbability) %>% 
+    dplyr::select(itemId, ContrastLoss)
   lda.model.posterior.predicted <- lda.model.posterior %>% 
     filter(posteriorClassLabel==ldaPredictedCategory) %>% 
     dplyr::select(itemId, posteriorProbability) %>% 
